@@ -41,16 +41,24 @@ with col2:
 st.write('')
 
 if st.button('2세 혈액형 확인하기', type='primary', use_container_width=True):
-    # 중복 없이 가능한 혈액형을 담을 집합(set)
     possible_bloods = set()
+    table_rows = []  # 표에 넣을 데이터를 저장할 리스트
 
-    # 이중 for문을 사용해 부모의 모든 유전자 조합 확인
+    # 이중 for문을 사용해 부모의 모든 유전자 조합 확인 및 표 데이터 생성
     for g1 in genes[father]:
         for g2 in genes[mother]:
             child_bt = get_child(g1, g2)
             possible_bloods.add(child_bt)
 
-    # 결과를 보기 좋게 정렬 후 문자열로 나열
+            # 표의 한 줄(행) 데이터 추가
+            table_rows.append({
+                '👨 아버지 유전자': g1,
+                '👩 어머니 유전자': g2,
+                '🧬 자녀 유전자 조합': g1 + g2,
+                '🩸 판정 혈액형': child_bt + '형',
+            })
+
+    # 1. 최종 결과 요약 출력
     result_list = sorted(list(possible_bloods))
     result_text = ', '.join([bt + '형' for bt in result_list])
 
@@ -59,3 +67,10 @@ if st.button('2세 혈액형 확인하기', type='primary', use_container_width=
         ' 혈액형은 다음과 같습니다!'
     )
     st.subheader(f'👉 {result_text}')
+
+    st.divider()
+
+    # 2. 유전자 조합 상세 표 출력
+    st.write('### 📊 유전자 교배 상세 표')
+    st.table(table_rows)
+   
