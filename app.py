@@ -41,14 +41,14 @@ with col2:
 st.write('')
 
 if st.button('2세 혈액형 확인하기', type='primary', use_container_width=True):
-    possible_bloods = set()
+    all_children = []  # 총 4가지 경우의 혈액형을 모두 담을 리스트
     table_rows = []  # 표에 넣을 데이터를 저장할 리스트
 
-    # 이중 for문을 사용해 부모의 모든 유전자 조합 확인 및 표 데이터 생성
+    # 이중 for문을 사용해 부모의 모든 유전자 조합 확인
     for g1 in genes[father]:
         for g2 in genes[mother]:
             child_bt = get_child(g1, g2)
-            possible_bloods.add(child_bt)
+            all_children.append(child_bt)
 
             # 표의 한 줄(행) 데이터 추가
             table_rows.append({
@@ -58,19 +58,27 @@ if st.button('2세 혈액형 확인하기', type='primary', use_container_width=
                 '🩸 판정 혈액형': child_bt + '형',
             })
 
-    # 1. 최종 결과 요약 출력
-    result_list = sorted(list(possible_bloods))
-    result_text = ', '.join([bt + '형' for bt in result_list])
+    # 중복을 제거하고 가나다순(A, AB, B, O)으로 정렬된 혈액형 목록
+    unique_bloods = sorted(list(set(all_children)))
 
+    # 각 혈액형이 나올 확률(%) 계산 (총 4가지 경우 중 몇 번 나왔는지 계산)
+    probs = []
+    for bt in unique_bloods:
+        percent = int((all_children.count(bt) / len(all_children)) * 100)
+        probs.append(str(percent))
+
+    # 문장 조합하기
+    blood_text = ', '.join([bt + '형' for bt in unique_bloods])
+    prob_text = ' : '.join(probs)
+
+    # 최종 결과 출력
     st.success(
-        f'**{father}형** 아버지와 **{mother}형** 어머니 사이에서 나올 수 있는'
-        ' 혈액형은 다음과 같습니다!'
+        f'자녀가 가질 수 있는 혈액형은 **{blood_text}** 이고 확률은'
+        f' **{prob_text}** 입니다.'
     )
-    st.subheader(f'👉 {result_text}')
 
     st.divider()
 
-    # 2. 유전자 조합 상세 표 출력
+    # 유전자 교배 상세 표 출력
     st.write('### 📊 유전자 교배 상세 표')
     st.table(table_rows)
-   
